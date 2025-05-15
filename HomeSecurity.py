@@ -1,5 +1,6 @@
 import configparser
 import logging
+import logging.config
 import os
 import pickle
 
@@ -33,7 +34,20 @@ recognition_threshold = 0.20
 
 
 def init():
-    logging.info("Starting system")
+    logging.config.fileConfig('logging.ini', encoding='UTF-8')
+
+    logger = logging.getLogger('test')
+    logger.debug('This is debug message')
+    logger.info('This is info message')
+    logger.warning('This is warning message')
+    logger.error('This is error message')
+    logger.critical('This is critical message')
+
+    # logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+    # logger = logging.getLogger(__name__)
+    # logger.setLevel(logging.DEBUG)
+    #
+    # logger.info("Starting system")
 
     config = configparser.ConfigParser()
     config.read('config.ini')
