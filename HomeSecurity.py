@@ -7,10 +7,10 @@ import pickle
 import cv2
 import numpy as np
 from jacpy.geometry import geoUtils
+from jacpy.time.TimedSampleStore import TimedSampleStore
 from mtcnn import mtcnn
 
 import HumansModel
-import TimedSample
 from FaceEncoder import FaceEncoder
 
 # The HomeSecurity system is designed to video monitor the entrance of a home and detect if an intruder (not
@@ -22,7 +22,7 @@ from FaceEncoder import FaceEncoder
 # against any the registered ones, then and intrusion alarm is fired off, triggering the necessary notifications.
 
 
-timedStore = TimedSample.TimedSampleStore(5000)
+timedStore = TimedSampleStore(5000)
 
 encodings_path = 'encodings/encodings.pkl'
 encodings_weights = 'facenet_keras_weights.h5'
