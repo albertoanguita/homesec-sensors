@@ -1,17 +1,21 @@
-import configparser
 import logging
 import logging.config
 import os
 import pickle
 
 import cv2
+import jacpy.str.strUtils
+from jacpy.str.strUtils import print_formatted_dict, print_formatted_list
+import jacpy
 import numpy as np
 from jacpy.geometry import geoUtils
 from jacpy.time.TimedSampleStore import TimedSampleStore
 from mtcnn import mtcnn
+from tensorboard.backend.event_processing.event_file_inspector import print_dict
 
 import HumansModel
 from FaceEncoder import FaceEncoder
+from config.Config import Config
 
 # The HomeSecurity system is designed to video monitor the entrance of a home and detect if an intruder (not
 # registered in the system) is pictured. To do so, the system uses an attached web-cam and two different NNs.
@@ -49,16 +53,13 @@ def init():
     #
     # logger.info("Starting system")
 
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    config = config['CONFIG']
-    facenetWeights = config['facenetWeights']
-    facesPath = config['facesPath']
-    encodingsPath = config['encodingsPath']
+    config = Config()
+    facenetWeights = config.facenet_weights()
+    facesPath = config.faces_path()
+    encodingsPath = config.encodings_path()
 
     logging.info("Config file read. ")
-    for item in config.items():
-        logging.info(f"  {item[0]}: {item[1]}")
+    logging.info(print_formatted_dict(config, value_printer=print_formatted_dict))
 
     humanModel = loadHumanModel()
     face_detector = mtcnn.MTCNN()
