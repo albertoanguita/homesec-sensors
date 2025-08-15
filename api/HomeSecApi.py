@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
-from flask import Flask
+from flask import Flask, request, jsonify
 
-from api.dtos.State import StateDto, AppState
+from api.dtos.State import StateDto, State
 
 app = Flask(__name__)  # Flask constructor
+app.debug = True
 
 
 # A decorator used to tell the application
@@ -20,8 +21,13 @@ def state():
 
 
 @app.route('/state', methods=['POST'])
-def state(state: StateDto):
+def state1():
     return HTTPStatus.OK, state.state
+
+@app.route('/test1', methods=['POST'])
+def state2():
+    input = request.json
+    return jsonify(StateDto(state=State.RUNNING))
 
 
 if __name__ == '__main__':
