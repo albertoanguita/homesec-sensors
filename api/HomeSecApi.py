@@ -17,7 +17,7 @@ def hello():
 
 @app.route('/state', methods=['GET'])
 def state():
-    return StateDto(state=AppState.RUNNING)
+    return StateDto(state=State.RUNNING)
 
 
 @app.route('/state', methods=['POST'])
