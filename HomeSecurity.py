@@ -4,14 +4,11 @@ import os
 import pickle
 
 import cv2
-import jacpy.str.strUtils
-from jacpy.str.strUtils import print_formatted_dict, print_formatted_list
-import jacpy
 import numpy as np
 from jacpy.geometry import geoUtils
+from jacpy.str.strUtils import print_formatted_dict
 from jacpy.time.TimedSampleStore import TimedSampleStore
 from mtcnn import mtcnn
-from tensorboard.backend.event_processing.event_file_inspector import print_dict
 
 import HumansModel
 from FaceEncoder import FaceEncoder

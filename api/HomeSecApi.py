@@ -27,6 +27,7 @@ def state1():
 @app.route('/test1', methods=['POST'])
 def state2():
     input = request.json
+    print(input)
     return jsonify(StateDto(state=State.RUNNING))
 
 
