@@ -1,10 +1,33 @@
+from enum import Enum
 
-class CommandType:
+
+class CommandType(Enum):
     START = 0
     STOP = 1
     RESET = 2
     GET_STATUS = 3
     SET_MODE = 4
+
+
+def parse_command(command: object) -> CommandType | None:
+    if command is None:
+        return None
+
+    commandStr = command['value']
+
+    match commandStr:
+        case 'start':
+            return CommandType.START
+        case 'stop':
+            return CommandType.STOP
+        case 'reset':
+            return CommandType.RESET
+        case 'get-status':
+            return CommandType.GET_STATUS
+        case 'set-mode':
+            return CommandType.SET_MODE
+        case _:
+            return None
 
 
 class Command:
