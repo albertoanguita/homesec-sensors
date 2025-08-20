@@ -8,10 +8,3 @@ class State(Enum):
     RUNNING_ARMING = 5
     RUNNING_ARMED = 6
     RUNNING_NIGHT = 7
-
-
-def parse_state(stateStr: str) -> State | None:
-    try:
-        return State[stateStr]
-    except KeyError:
-        return None

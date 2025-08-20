@@ -24,16 +24,16 @@ def get_state():
     return jsonify(stateDto)
 
 
-@app.route('/homesec-sensors/state', methods=['POST'])
+@app.route('/homesec-sensors/command', methods=['POST'])
 def set_state():
     input = request.json
-    if input is None or not 'state' in input:
+    if input is None or not 'command' in input:
         return "Invalid input state", HTTPStatus.BAD_REQUEST
-    value = input['state']
+    value = input['command']
     if value is None:
         return "Invalid input state", HTTPStatus.BAD_REQUEST
 
-    if manager.set_state(value):
+    if manager.command(value):
         return jsonify(success=True)
     else:
         return "Invalid input state", HTTPStatus.BAD_REQUEST
