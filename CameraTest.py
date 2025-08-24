@@ -7,25 +7,25 @@ camera_detector = CameraDetector()
 
 time.sleep(5)
 
-logging.info("Starting camera")
+logging.warning("Starting camera 1")
 
 camera_detector.start()
 
-time.sleep(15)
+time.sleep(25)
 
-logging.info("Stopping camera")
+logging.warning("Stopping camera 1")
 
 camera_detector.stop()
 
 time.sleep(15)
 
-logging.info("Starting camera")
+logging.warning("Starting camera 2")
 
 camera_detector.start()
 
 time.sleep(15)
 
-logging.info("Stopping camera")
+logging.warning("Stopping camera 2")
 
 camera_detector.stop()
 

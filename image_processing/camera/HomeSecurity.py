@@ -197,9 +197,14 @@ def main_loop(camera_detector: CameraDetector, human_model, face_encoder):
 
         frame = CameraDetector._add_fps(frame, timed_store, has_human, human_thr)
 
+        logging.debug(f'Drawing frame {frame_count}...')
         cv2.imshow('camera', frame)
+        logging.debug(f'Draw frame {frame_count}')
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
         frame_count += 1
-        cap.release()
+
+    logging.debug(f'Ending video capture {frame_count}...')
+    cap.release()
+    cv2.destroyAllWindows()
