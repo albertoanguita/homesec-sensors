@@ -44,7 +44,9 @@ class CameraDetector(Singleton):
 
         self.running = ThreadSafe(False)
         self.main_loop_thread = None
+        self.latest_frame = ThreadSafe(None)
 
+        print(os.path.abspath('logging.ini'))
         logging.config.fileConfig('logging.ini', encoding='UTF-8')
 
         logger = logging.getLogger('test')
@@ -183,6 +185,7 @@ def main_loop(camera_detector: CameraDetector, human_model, face_encoder):
         timed_store.add(True)
 
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        camera_detector.latest_frame.set(img_rgb)
         partitions = CameraDetector._divide(frame)
 
         human_detected, human_thr = CameraDetector._detect_humans(img_rgb, partitions, human_model)

@@ -1,3 +1,4 @@
+import os
 from http import HTTPStatus
 
 from flask import Flask, request, jsonify
@@ -7,6 +8,9 @@ from manager.Manager import Manager
 
 app = Flask(__name__)  # Flask constructor
 app.debug = True
+
+# set cwd to base project dir
+os.chdir('C:/Users/alber/repos/homesec-sensors')
 
 manager = Manager()
 
@@ -38,11 +42,11 @@ def set_state():
     else:
         return "Invalid input state", HTTPStatus.BAD_REQUEST
 
-@app.route('/test1', methods=['POST'])
-def state2():
-    input = request.json
-    print(input)
-    return jsonify(StateDto(state=State.RUNNING))
+# @app.route('/test1', methods=['POST'])
+# def state2():
+#     input = request.json
+#     print(input)
+#     return jsonify(StateDto(state=State.RUNNING))
 
 @app.route('/command', methods=['POST'])
 def command():

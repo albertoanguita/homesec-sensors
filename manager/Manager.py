@@ -30,7 +30,7 @@ class Manager(Singleton):
         command = Manager.__parse_command(commandStr)
         if command is not None:
             if self.state == State.STOPPED and (command == Command.START or command == Command.RESET):
-                self.state = State.STARTING
+                self.state = State.RUNNING_OFF
                 self.imageManager.start()
 
             elif ((self.state == State.RUNNING_OFF or
@@ -38,7 +38,7 @@ class Manager(Singleton):
                    self.state == State.RUNNING_ARMING or
                    self.state == State.RUNNING_NIGHT)
                   and command == Command.STOP):
-                self.state = State.STOPPING
+                self.state = State.STOPPED
                 self.imageManager.stop()
 
             return True
