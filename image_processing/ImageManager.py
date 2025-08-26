@@ -2,15 +2,16 @@ from enum import Enum
 
 from jacpy.object.Singleton import Singleton
 
+from image_processing.ImageEvents import ImageEventInterface
 from image_processing.camera.HomeSecurity import CameraDetector
 
 
 # The image manager class handles all camera-related events and commands
 class ImageManager(Singleton):
-    def __init__(self):
+    def __init__(self, image_events: ImageEventInterface):
         if not self._initialized:
             self.state = State.STOPPED
-            self.camera_detector = CameraDetector()
+            self.camera_detector = CameraDetector(image_events)
             self._initialized = True
 
 

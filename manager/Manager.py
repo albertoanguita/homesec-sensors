@@ -1,16 +1,24 @@
+import logging
+from enum import Enum
+
+import requests
 from jacpy.object.Singleton import Singleton
-from numpy.distutils.npy_pkg_config import parse_config
+from jacpy.time import TimeUtil
 
 from image_processing.ImageManager import ImageManager
-from manager.ManagerCommand import parse_command
+from manager.ImageEventImpl import ImageEventImpl
 # from ManagerCommand import Command, parse_command
 from manager.ManagerState import State
-from enum import Enum
+
 
 class Command(Enum):
     START = 1
     STOP = 2
     RESET = 3
+
+
+UNKNOWN_PERSON_EVENT = 'unknown_person_detected'
+KNOWN_PERSON_EVENT = 'known_person_detected'
 
 # The manager class handles all elements in homesec-sensors. It keeps track
 # of the module state and events, and handles incoming requests
@@ -18,7 +26,13 @@ class Manager(Singleton):
     def __init__(self):
         if not self._initialized:
             self.state = State.STOPPED
-            self.imageManager = ImageManager()
+            self.callback_url = None
+            self.imageManager = ImageManager(ImageEventImpl(self))
+
+            logging.config.fileConfig('logging.ini', encoding='UTF-8')
+            self.logger = logging.getLogger(__name__)
+            self.logger.info('Manager start')
+
             self._initialized = True
 
 
@@ -56,5 +70,28 @@ class Manager(Singleton):
     #     pass
 
 
-    def image_event(self, event):
-        pass
+    def set_callback_url(self, callback_url: str) -> None:
+        if callback_url is not None:
+            self.callback_url = callback_url
+            self.logger.info('Callback URL set to: {}'.format(callback_url))
+
+
+    def unknown_person_detected(self):
+        # todo initiate protocol
+        if self.callback_url is not None:
+            requests.post(self.callback_url, self.build_request_data(UNKNOWN_PERSON_EVENT))
+        else:
+            self.logger.info('Callback URL not set. Cannot report unknown person detected.')
+
+
+    def known_person_detected(self):
+        # todo initiate protocol
+        if self.callback_url is not None:
+            requests.post(self.callback_url, self.build_request_data(KNOWN_PERSON_EVENT))
+        else:
+            self.logger.info('Callback URL not set. Cannot report known person detected.')
+
+
+    @staticmethod
+    def build_request_data(event: str) -> dict:
+        return {'timestamp': TimeUtil.current_milli_time(), 'event': event}

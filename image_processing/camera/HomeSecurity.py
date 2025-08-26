@@ -14,6 +14,7 @@ from jacpy.str.strUtils import print_formatted_dict
 from jacpy.time.TimedSampleStore import TimedSampleStore
 from mtcnn import mtcnn
 
+from image_processing.ImageEvents import ImageEventInterface
 from image_processing.model import HumansModel
 from FaceEncoder import FaceEncoder
 from config.Config import PathsConfig
@@ -40,9 +41,10 @@ recognition_threshold = 0.20
 
 
 class CameraDetector(Singleton):
-    def __init__(self):
+    def __init__(self, image_events: ImageEventInterface):
 
         self.running = ThreadSafe(False)
+        self.image_events = image_events
         self.main_loop_thread = None
         self.latest_frame = ThreadSafe(None)
 
@@ -80,6 +82,8 @@ class CameraDetector(Singleton):
 
         self.face_encoder.LoadEncodings()
 
+        self.image_events.initialized()
+
         # main_loop(self, self.humanModel, self.face_encoder)
 
 
@@ -88,14 +92,19 @@ class CameraDetector(Singleton):
             # create camera thread
             self.main_loop_thread = threading.Thread(target=main_loop, args=(self, self.human_model, self.face_encoder))
             self.main_loop_thread.start()
-        pass
 
 
     def stop(self):
         if self.running.get_and_set(False):
             self.main_loop_thread.join()
-        pass
 
+
+    def known_person_detected(self):
+        self.image_events.known_person()
+
+
+    def unknown_person_detected(self):
+        self.image_events.unknown_person()
 
     @staticmethod
     def _load_human_model():
@@ -110,7 +119,7 @@ class CameraDetector(Singleton):
     #     return encoding_dict
 
     @staticmethod
-    def _divide(frame: cv2.typing.MatLike):
+    def divide(frame: cv2.typing.MatLike):
         shape = frame.shape
         rows = shape[0]
         cols = shape[1]
@@ -118,7 +127,7 @@ class CameraDetector(Singleton):
         return partitions
 
     @staticmethod
-    def _detect_humans(img: cv2.typing.MatLike, partitions, humanModel):
+    def detect_humans(img: cv2.typing.MatLike, partitions, humanModel):
         # humanParts = []
         # noHumanParts = []
         # partsWithColor = []
@@ -134,6 +143,8 @@ class CameraDetector(Singleton):
     def detect_faces(frame, img, encoder):
         known, unknown = encoder.DetectFaces(img, face_threshold, recognition_threshold)
 
+        has_known_person = any(known)
+
         for aKnown in known:
             name = aKnown[0]
             distance = aKnown[1]
@@ -148,7 +159,7 @@ class CameraDetector(Singleton):
             pt_2 = anUnknown[1]
             cv2.rectangle(frame, pt_1, pt_2, (0, 0, 255), 2)
             cv2.putText(frame, 'unknown', pt_1, cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
-        return frame
+        return frame, has_known_person
 
     # def get_face(self, img, box):
     #     x1, y1, width, height = box
@@ -159,7 +170,7 @@ class CameraDetector(Singleton):
 
 
     @staticmethod
-    def _add_fps(frame, timed_store, has_human, human_thr):
+    def add_fps(frame, timed_store, has_human, human_thr):
         fps = timed_store.count() / 5.0
         color = (255, 0, 0) if has_human else (0, 255, 0)
         cv2.putText(frame, f'{str(fps)} / {str(human_thr)}', (15, 25), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
@@ -186,19 +197,25 @@ def main_loop(camera_detector: CameraDetector, human_model, face_encoder):
 
         img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         camera_detector.latest_frame.set(img_rgb)
-        partitions = CameraDetector._divide(frame)
+        partitions = CameraDetector.divide(frame)
 
-        human_detected, human_thr = CameraDetector._detect_humans(img_rgb, partitions, human_model)
+        human_detected, human_thr = CameraDetector.detect_humans(img_rgb, partitions, human_model)
         if human_detected:
             logging.warning(f"Human detected in frame {frame_count}")
             # frame = detect.detect(frame, face_detector, face_encoder, encoding_dict)
-            frame = CameraDetector.detect_faces(frame, img_rgb, face_encoder)
+            frame, has_known_person = CameraDetector.detect_faces(frame, img_rgb, face_encoder)
+
+            if has_known_person:
+                camera_detector.known_person_detected()
+            else:
+                camera_detector.unknown_person_detected()
+
             has_human = True
         else:
             logging.debug(f'No human detected in frame {frame_count}')
             has_human = False
 
-        frame = CameraDetector._add_fps(frame, timed_store, has_human, human_thr)
+        frame = CameraDetector.add_fps(frame, timed_store, has_human, human_thr)
 
         logging.debug(f'Drawing frame {frame_count}...')
         cv2.imshow('camera', frame)

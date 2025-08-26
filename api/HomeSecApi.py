@@ -29,7 +29,7 @@ def get_state():
 
 
 @app.route('/homesec-sensors/command', methods=['POST'])
-def set_state():
+def command():
     input = request.json
     if input is None or not 'command' in input:
         return "Invalid input state", HTTPStatus.BAD_REQUEST
@@ -42,19 +42,18 @@ def set_state():
     else:
         return "Invalid input state", HTTPStatus.BAD_REQUEST
 
-# @app.route('/test1', methods=['POST'])
-# def state2():
-#     input = request.json
-#     print(input)
-#     return jsonify(StateDto(state=State.RUNNING))
 
-@app.route('/command', methods=['POST'])
-def command():
+@app.route('/set-callback-url', methods=['POST'])
+def set_callback_url():
     input = request.json
-    command = input['command']
-    arguments = input['arguments']
-    manager.command(command, arguments)
-    print(command)
+    if input is None or not 'url' in input:
+        return "Invalid body", HTTPStatus.BAD_REQUEST
+    value = input['url']
+    if value is None:
+        return "Invalid body", HTTPStatus.BAD_REQUEST
+
+    manager.set_callback_url(value)
+    return jsonify(success=True)
 
 
 if __name__ == '__main__':
