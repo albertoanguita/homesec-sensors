@@ -8,11 +8,17 @@ from image_processing.camera.HomeSecurity import CameraDetector
 
 # The image manager class handles all camera-related events and commands
 class ImageManager(Singleton):
-    def __init__(self, image_events: ImageEventInterface):
+    def __init__(self):
         if not self._initialized:
             self.state = State.STOPPED
-            self.camera_detector = CameraDetector(image_events)
+            self.camera_detector = None
             self._initialized = True
+
+
+    def initialize(self, image_events: ImageEventInterface):
+        if self.camera_detector is None:
+            self.camera_detector = CameraDetector().initialize(image_events)
+        return self
 
 
     def start(self):

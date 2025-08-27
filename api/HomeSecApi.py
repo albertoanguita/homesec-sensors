@@ -32,15 +32,16 @@ def get_state():
 def command():
     input = request.json
     if input is None or not 'command' in input:
-        return "Invalid input state", HTTPStatus.BAD_REQUEST
+        return "Invalid input command", HTTPStatus.BAD_REQUEST
     value = input['command']
     if value is None:
-        return "Invalid input state", HTTPStatus.BAD_REQUEST
+        return "Invalid input command", HTTPStatus.BAD_REQUEST
 
     if manager.command(value):
-        return jsonify(success=True)
+        return "Ok", HTTPStatus.OK
+        # return jsonify(success=True)
     else:
-        return "Invalid input state", HTTPStatus.BAD_REQUEST
+        return "Invalid input command", HTTPStatus.BAD_REQUEST
 
 
 @app.route('/set-callback-url', methods=['POST'])

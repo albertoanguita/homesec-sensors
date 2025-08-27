@@ -41,10 +41,10 @@ recognition_threshold = 0.20
 
 
 class CameraDetector(Singleton):
-    def __init__(self, image_events: ImageEventInterface):
+    def __init__(self):
 
         self.running = ThreadSafe(False)
-        self.image_events = image_events
+        self.image_events = None
         self.main_loop_thread = None
         self.latest_frame = ThreadSafe(None)
 
@@ -82,10 +82,16 @@ class CameraDetector(Singleton):
 
         self.face_encoder.LoadEncodings()
 
-        self.image_events.initialized()
+        self.initialized = True
 
         # main_loop(self, self.humanModel, self.face_encoder)
 
+
+    def initialize(self, image_events: ImageEventInterface):
+        if self.image_events is None:
+            self.image_events = image_events
+            self.image_events.initialized()
+        return self
 
     def start(self):
         if not self.running.get_and_set(True):

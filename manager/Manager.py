@@ -5,8 +5,9 @@ import requests
 from jacpy.object.Singleton import Singleton
 from jacpy.time import TimeUtil
 
+from image_processing.ImageEvents import ImageEventInterface
 from image_processing.ImageManager import ImageManager
-from manager.ImageEventImpl import ImageEventImpl
+# from manager.ImageEventImpl import ImageEventImpl
 # from ManagerCommand import Command, parse_command
 from manager.ManagerState import State
 
@@ -27,7 +28,8 @@ class Manager(Singleton):
         if not self._initialized:
             self.state = State.STOPPED
             self.callback_url = None
-            self.imageManager = ImageManager(ImageEventImpl(self))
+            self.imageManager = ImageManager().initialize(ImageEventImpl(self))
+            #self.imageManager.set_image_event_interface(ImageEventImpl(self))
 
             logging.config.fileConfig('logging.ini', encoding='UTF-8')
             self.logger = logging.getLogger(__name__)
@@ -95,3 +97,37 @@ class Manager(Singleton):
     @staticmethod
     def build_request_data(event: str) -> dict:
         return {'timestamp': TimeUtil.current_milli_time(), 'event_type': event}
+
+
+
+class ImageEventImpl(ImageEventInterface):
+    def __init__(self, manager: Manager):
+        self.manager = manager
+        logging.config.fileConfig('logging.ini', encoding='UTF-8')
+        self.logger = logging.getLogger(__name__)
+        self.logger.info('ImageEventImpl start')
+
+    def initialized(self):
+        self.logger.info('ImageEventImpl initialized')
+
+    def reboot(self):
+        pass
+
+    def stopped(self):
+        pass
+
+    def movement(self):
+        pass
+
+    def no_movement(self):
+        pass
+
+    def unknown_person(self):
+        self.logger.warning('ImageEventImpl unknown_person')
+        self.manager.unknown_person_detected()
+        pass
+
+    def known_person(self):
+        self.logger.warning('ImageEventImpl known_person')
+        self.manager.known_person_detected()
+        pass
