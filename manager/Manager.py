@@ -94,4 +94,4 @@ class Manager(Singleton):
 
     @staticmethod
     def build_request_data(event: str) -> dict:
-        return {'timestamp': TimeUtil.current_milli_time(), 'event': event}
+        return {'timestamp': TimeUtil.current_milli_time(), 'event_type': event}
