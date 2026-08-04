@@ -10,7 +10,7 @@ app = Flask(__name__)  # Flask constructor
 app.debug = True
 
 # set cwd to base project dir
-os.chdir('C:/Users/alber/repos/homesec-sensors')
+os.chdir('D:/ML/projects/homesec-sensors')
 
 manager = Manager()
 
@@ -44,7 +44,7 @@ def command():
         return "Invalid input command", HTTPStatus.BAD_REQUEST
 
 
-@app.route('/set-callback-url', methods=['POST'])
+@app.route('/homesec-sensors/set-callback-url', methods=['POST'])
 def set_callback_url():
     input = request.json
     if input is None or not 'url' in input:
